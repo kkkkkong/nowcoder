@@ -9,7 +9,7 @@
 	<link rel="stylesheet" th:href="@{/css/global.css}" />
 	<title>牛客网-首页</title>
 </head>
-<body>	
+<body>
 	<div class="nk-container">
 		<!-- 头部 -->
 		<header class="bg-dark sticky-top">
@@ -116,12 +116,12 @@
 						</div>
 					</div>
 				</div>
-				
+
 				<!-- 帖子列表 -->
 				<ul class="list-unstyled">
 					<li class="media pb-3 pt-3 mb-3 border-bottom" th:each="map:${discussPosts}">
 						<a href="site/profile.html">
-							<img th:src="map.user.headerUrl" class="mr-4 rounded-circle" alt="用户头像" style="width:50px;height:50px;">
+							<img th:src="${map.user.headerUrl}" class="mr-4 rounded-circle" alt="用户头像" style="width:50px;height:50px;">
 						</a>
 						<div class="media-body">
 							<h6 class="mt-0 mb-3">
@@ -138,21 +138,28 @@
 									<li class="d-inline ml-2">回帖 7</li>
 								</ul>
 							</div>
-						</div>						
+						</div>
 					</li>
 				</ul>
 				<!-- 分页 -->
-				<nav class="mt-5">
+				<nav class="mt-5" th:if="${page.rows>0}">
 					<ul class="pagination justify-content-center">
-						<li class="page-item"><a class="page-link" href="#">首页</a></li>
-						<li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-						<li class="page-item active"><a class="page-link" href="#">1</a></li>
-						<li class="page-item"><a class="page-link" href="#">2</a></li>
-						<li class="page-item"><a class="page-link" href="#">3</a></li>
-						<li class="page-item"><a class="page-link" href="#">4</a></li>
-						<li class="page-item"><a class="page-link" href="#">5</a></li>
-						<li class="page-item"><a class="page-link" href="#">下一页</a></li>
-						<li class="page-item"><a class="page-link" href="#">末页</a></li>
+						<li class="page-item"><a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>
+						</li>
+						<li th:class="|page-item ${page.current==1?'disabled':''}|">
+							<a class="page-link" th:href="@{${page.path}(current=${(page.current)-1})}">上一页</a>
+						</li>
+						<li th:class="|page-item ${i==page.current?'active':''}|" th:each="i:${#numbers.sequence(page.from,page.to)}">
+<!--							这里没实现跳转-->
+							<a class="page-link" href="#" th:text="${i}">1</a>
+						</li>
+
+						<li th:class="|page-item ${page.current==page.total?'disabled':''}|">
+							<a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" th:href="@{${page.path}(current=${page.total})}">末页</a>
+						</li>
 					</ul>
 				</nav>
 			</div>
