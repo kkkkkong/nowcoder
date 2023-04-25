@@ -30,6 +30,7 @@ public class HomeController {
         List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (!list.isEmpty()) {
+//            将数据存放到map中
             for (DiscussPost post : list) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("post", post);
