@@ -3,6 +3,7 @@ package com.coder.community.controller;
 import com.coder.community.entity.User;
 import com.coder.community.service.UserService;
 import com.coder.community.utils.CommunityUtil;
+import com.coder.community.utils.CookieUtil;
 import com.coder.community.utils.HostHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,7 +98,7 @@ public class UserController {
 
     }
     @PostMapping("/updatePassword")
-    public String updatePassword(String oldPassword, String newPassword, String confirmPassword, Model model) {
+    public String updatePassword(String oldPassword, String newPassword, String confirmPassword, Model model, HttpServletRequest httpServletRequest) {
 
         User user = hostHandler.getUser();
 
@@ -125,6 +127,10 @@ public class UserController {
         }
         newPassword= CommunityUtil.md5(newPassword + user.getSalt());
         userService.updatePassword(user.getId(), newPassword);
-        return "redirect:/index";
+//        取消登录状态
+        String ticket = CookieUtil.getValue(httpServletRequest, "ticket");
+        userService.logout(ticket);
+
+        return "redirect:/login";
     }
 }
