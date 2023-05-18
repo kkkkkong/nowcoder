@@ -95,4 +95,36 @@ public class UserController {
         }
 
     }
+    @PostMapping("/updatePassword")
+    public String updatePassword(String oldPassword, String newPassword, String confirmPassword, Model model) {
+
+        User user = hostHandler.getUser();
+
+        if (oldPassword == null) {
+            model.addAttribute("oldMsg", "密码不能为空");
+            return "site/setting";
+        }
+        if (newPassword == null) {
+            model.addAttribute("newMsg", "密码不能为空");
+            return "site/setting";
+        }
+        if (confirmPassword == null) {
+            model.addAttribute("confirmMsg", "密码不能为空");
+            return "site/setting";
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("confirmMsg", "两次输入的密码不一致");
+            return "/site/setting";
+        }
+//        打印原密码和数据库中的密码
+        oldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
+
+        if (!oldPassword.equals(user.getPassword())) {
+            model.addAttribute("oldMsg", "原密码错误");
+            return "/site/setting";
+        }
+        newPassword= CommunityUtil.md5(newPassword + user.getSalt());
+        userService.updatePassword(user.getId(), newPassword);
+        return "redirect:/index";
+    }
 }
