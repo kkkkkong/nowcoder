@@ -1,5 +1,6 @@
 package com.coder.community.controller;
 
+import com.coder.community.annocation.LoginRequired;
 import com.coder.community.entity.User;
 import com.coder.community.service.UserService;
 import com.coder.community.utils.CommunityUtil;
@@ -42,12 +43,12 @@ public class UserController {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
-
+    @LoginRequired
     @GetMapping("/setting")
     public String getSettingPage() {
         return "/site/setting";
     }
-
+    @LoginRequired
     @PostMapping("/upload")
     public String uploadHeader(MultipartFile headerImage, Model model) {
 //        如果没有选择图片，就返回错误信息

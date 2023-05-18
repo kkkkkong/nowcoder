@@ -1,4 +1,4 @@
-package com.coder.community.controller;
+package com.coder.community.controller.interceptor;
 
 import com.coder.community.entity.LoginTicket;
 import com.coder.community.entity.User;
