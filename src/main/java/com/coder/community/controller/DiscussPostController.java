@@ -7,9 +7,8 @@ import com.coder.community.utils.CommunityUtil;
 import com.coder.community.utils.HostHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
@@ -39,5 +38,14 @@ public class DiscussPostController {
         discussPostService.addDiscussPost(post);
 //        TODO 报错的情况，将来统一处理
         return CommunityUtil.getJSONString(0, "发布成功");
+    }
+
+    @GetMapping("/detail/{discussPostId}")
+    public String getDiscussPost(@PathVariable("discussPostId") int id, Model model) {
+        DiscussPost post = discussPostService.findDiscussPostById(id);
+        model.addAttribute("post", post);
+        User user = hostHandler.getUser();
+        model.addAttribute("user", user);
+        return "/site/discuss-detail";
     }
 }

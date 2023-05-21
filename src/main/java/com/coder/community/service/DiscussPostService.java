@@ -38,4 +38,8 @@ public class DiscussPostService {
 //        添加帖子
         return discussPostMapper.insertDiscussPost(discussPost);
     }
+//    查询帖子
+    public DiscussPost findDiscussPostById(int id) {
+        return discussPostMapper.selectDiscussPostById(id);
+    }
 }
