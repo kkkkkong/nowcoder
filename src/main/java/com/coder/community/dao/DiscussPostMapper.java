@@ -18,4 +18,5 @@ public interface DiscussPostMapper {
     int insertDiscussPost(DiscussPost discussPost);
 //    根据id查询评论
     DiscussPost selectDiscussPostById(int id);
+    int updateCommentCount(int id, int commentCount);
 }
