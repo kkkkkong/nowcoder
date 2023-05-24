@@ -46,15 +46,4 @@ class MessageMapperTest {
         System.out.println(i);
 
     }
-
-    @Test
-    void insertMessage() {
-        Message message = new Message();
-        message.setFromId(111);
-        message.setToId(112);
-        message.setContent("你好");
-
-        int i = messageMapper.insertMessage(message);
-        System.out.println(i);
-    }
 }

@@ -57,7 +57,7 @@
         status=0
         and from_id!=1
         and to_id = #{userId}
-        <if test="conversation_id!=null">
+        <if test="conversationId!=null">
             and conversation_id = #{conversationId}
         </if>
     </select>
