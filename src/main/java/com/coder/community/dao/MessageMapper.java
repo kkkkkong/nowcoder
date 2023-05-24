@@ -17,6 +17,9 @@ public int selectConversationCount(int userId);
     public int selectLetterCount(String conversationId);
 //    查询未读私信的数量
     public int selectLetterUnreadCount(int userId, String conversationId);
-
+//  新增消息
+    public int insertMessage(Message message);
+//    修改消息的状态
+    public int updateStatus(List<Integer> ids, int status);
 
 }

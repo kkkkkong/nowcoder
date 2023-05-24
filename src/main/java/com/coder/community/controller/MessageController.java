@@ -5,12 +5,15 @@ import com.coder.community.entity.Page;
 import com.coder.community.entity.User;
 import com.coder.community.service.MessageService;
 import com.coder.community.service.UserService;
+import com.coder.community.utils.CommunityUtil;
 import com.coder.community.utils.HostHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +78,11 @@ public class MessageController {
 //        私信目标
         model.addAttribute("target", getLetterTarget(conversationId));
 //        设置已读
+        List<Integer> ids = getLetterIds(letterList);
+        if (!ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
+
         return "/site/letter-detail";
     }
     private User getLetterTarget(String conversationId) {
@@ -86,5 +94,39 @@ public class MessageController {
         } else {
             return userService.findUserById(id0);
         }
+    }
+//    获取未读消息id
+    private List<Integer> getLetterIds(List<Message> letterList) {
+        List<Integer> ids = new ArrayList<>();
+        if (letterList != null) {
+            for (Message message : letterList) {
+                if (message.getToId() == hostHandler.getUser().getId() && message.getStatus() == 0) {
+                    ids.add(message.getId());
+                }
+            }
+        }
+        return ids;
+    }
+    @PostMapping ("/letter/send")
+    @ResponseBody
+    public String sendLetter(String toName, String content) {
+        User target = userService.findUserByName(toName);
+        if (target == null) {
+            return CommunityUtil.getJSONString(1, "目标用户不存在");
+        }
+//        设置发送消息
+        Message message = new Message();
+        message.setFromId(hostHandler.getUser().getId());
+        message.setToId(target.getId());
+        message.setContent(content);
+//        拼接会话id
+        if (message.getFromId() < message.getToId()) {
+            message.setConversationId(message.getFromId() + "_" + message.getToId());
+        } else {
+            message.setConversationId(message.getToId() + "_" + message.getFromId());
+        }
+
+        messageService.addMessage(message);
+        return CommunityUtil.getJSONString(0);
     }
 }
