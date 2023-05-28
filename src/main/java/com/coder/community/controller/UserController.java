@@ -2,6 +2,7 @@ package com.coder.community.controller;
 
 import com.coder.community.annocation.LoginRequired;
 import com.coder.community.entity.User;
+import com.coder.community.service.LikeService;
 import com.coder.community.service.UserService;
 import com.coder.community.utils.CommunityUtil;
 import com.coder.community.utils.CookieUtil;
@@ -42,6 +43,8 @@ public class UserController {
     private String domain;
     @Value("${server.servlet.context-path}")
     private String contextPath;
+    @Autowired
+    private LikeService likeService;
 
     @LoginRequired
     @GetMapping("/setting")
@@ -133,5 +136,19 @@ public class UserController {
         userService.logout(ticket);
 
         return "redirect:/login";
+    }
+//    获取个人主页
+    @GetMapping("/profile/{userId}")
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在");
+        }
+//        用户
+        model.addAttribute("user", user);
+//        点赞数量
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+        return "/site/profile";
     }
 }
