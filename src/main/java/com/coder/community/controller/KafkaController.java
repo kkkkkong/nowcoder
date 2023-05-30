@@ -10,11 +10,14 @@ import org.springframework.stereotype.Component;
 public class KafkaController {
     @Autowired
     private KafkaProducer kafkaProducer;
+    @Autowired
+    private KafkaConsumer kafkaConsumer;
     public void testKafka() {
-        kafkaProducer.sendMessage("test", "你好");
-        kafkaProducer.sendMessage("test", "在吗");
+        kafkaProducer.sendMessage("mingyue", "你好");
+        kafkaProducer.sendMessage("mingyue", "在吗");
+        kafkaProducer.sendMessage("mingyue", "在吗?");
         try {
-            Thread.sleep(1000 * 10);
+            Thread.sleep(1000 * 5);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -31,7 +34,7 @@ class KafkaProducer {
 }
 @Component
 class KafkaConsumer {
-    @KafkaListener(topics = {"test"})
+    @KafkaListener(topics = {"mingyue"})
     public void handleMessage(ConsumerRecord record) {
         System.out.println(record.value());
     }
