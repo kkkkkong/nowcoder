@@ -106,6 +106,17 @@
             and conversation_id=#{topic}
         </if>
     </select>
+    <select id="selectNotices" resultType="Message">
+        select
+        <include refid="selectFields"></include>
+        from message
+        where from_id=1
+        and status!=2
+        and to_id=#{userId}
+        and conversation_id=#{topic}
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
 
 
     
