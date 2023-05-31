@@ -21,5 +21,11 @@ public int selectConversationCount(int userId);
     public int insertMessage(Message message);
 //    修改消息的状态
     public int updateStatus(List<Integer> ids, int status);
+//    查询某个主题下最新的通知
+    public Message selectLatestNotice(int userId, String topic);
+//    查询某个主题所包含的通知数量
+    public int selectNoticeCount(int userId, String topic);
+//    查询未读的通知的数量
+    public int selectNoticeUnreadCount(int userId, String topic);
 
 }
