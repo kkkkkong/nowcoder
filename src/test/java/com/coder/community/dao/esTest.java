@@ -3,6 +3,7 @@ package com.coder.community.dao;
 import com.coder.community.NowcoderApplication;
 import com.coder.community.dao.elasticsearch.DiscussPostRepository;
 import com.coder.community.entity.DiscussPost;
+import com.coder.community.service.ElasticsearchService;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -11,10 +12,12 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -31,6 +34,8 @@ public class esTest {
 //    private ElasticsearchTemplate elasticsearchTemplate;
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
+    @Autowired
+    private ElasticsearchService elasticService;
     @Test
     public void testInsert(){
         discussPostRepository.save(discussPostMapper.selectDiscussPostById(241));
@@ -69,5 +74,15 @@ public class esTest {
         SearchHits<DiscussPost> search = elasticsearchRestTemplate.search(query, DiscussPost.class);
         System.out.println(search.getTotalHits());
 
+    }
+
+    @Test
+    public void test4Rest() {
+        SearchHits<DiscussPost> hits  = elasticService.searchDiscussPost("互联网寒冬", 0, 10);
+        System.out.println(hits.getTotalHits());
+        for(SearchHit<DiscussPost> post : hits){
+//            System.out.println(post.getContent());
+            System.out.println(post.getHighlightFields());
+        }
     }
 }
