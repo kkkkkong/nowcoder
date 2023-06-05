@@ -21,7 +21,12 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @SpringBootTest
 @ContextConfiguration(classes = NowcoderApplication.class)
@@ -30,14 +35,15 @@ public class esTest {
     private DiscussPostRepository discussPostRepository;
     @Autowired
     private DiscussPostMapper discussPostMapper;
-//    @Autowired
+    //    @Autowired
 //    private ElasticsearchTemplate elasticsearchTemplate;
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
     @Autowired
     private ElasticsearchService elasticService;
+
     @Test
-    public void testInsert(){
+    public void testInsert() {
         discussPostRepository.save(discussPostMapper.selectDiscussPostById(241));
         discussPostRepository.save(discussPostMapper.selectDiscussPostById(242));
         discussPostRepository.save(discussPostMapper.selectDiscussPostById(243));
@@ -56,8 +62,9 @@ public class esTest {
         discussPostRepository.saveAll(discussPostMapper.selectDiscussPost(133, 0, 100));
         discussPostRepository.saveAll(discussPostMapper.selectDiscussPost(134, 0, 100));
     }
+
     @Test
-    public void testSearchByRepository(){
+    public void testSearchByRepository() {
         NativeSearchQuery query = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery("互联网寒冬", "title", "content"))
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
@@ -74,15 +81,49 @@ public class esTest {
         SearchHits<DiscussPost> search = elasticsearchRestTemplate.search(query, DiscussPost.class);
         System.out.println(search.getTotalHits());
 
+//        把高亮显示的内容替换掉
+        ArrayList<DiscussPost> list = new ArrayList<>();
+        for (SearchHit<DiscussPost> hit : search) {
+            DiscussPost content = hit.getContent();
+            List<String> title = hit.getHighlightFields().get("title");
+            if (title != null) {
+                content.setTitle(title.get(0));
+            }
+            List<String> contents = hit.getHighlightFields().get("content");
+            if (contents != null) {
+                content.setContent(contents.get(0));
+            }
+            list.add(content);
+        }
+        for (DiscussPost post : list) {
+            System.out.println(post);
+        }
+
     }
 
     @Test
     public void test4Rest() {
-        SearchHits<DiscussPost> hits  = elasticService.searchDiscussPost("互联网寒冬", 0, 10);
-        System.out.println(hits.getTotalHits());
-        for(SearchHit<DiscussPost> post : hits){
-//            System.out.println(post.getContent());
-            System.out.println(post.getHighlightFields());
-        }
+//        SearchHits<DiscussPost> hits = elasticService.searchDiscussPost("互联网寒冬", 0, 10);
+//        System.out.println(hits.getTotalHits());
+//        for (SearchHit<DiscussPost> post : hits) {
+////            System.out.println(post.getContent());
+//            System.out.println(post.getHighlightFields());
+//        }
     }
+
+    @Test
+    public void testSearchByTem() {
+        NativeSearchQuery query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.multiMatchQuery("互联网寒冬", "title", "content"))
+                .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
+                .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
+                .withSort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
+                .withPageable(PageRequest.of(0, 10))
+                .withHighlightFields(
+                        //高亮显示
+                        new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
+                        new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
+                ).build();
+    }
+
 }

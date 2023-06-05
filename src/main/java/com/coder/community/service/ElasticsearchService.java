@@ -15,6 +15,11 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class ElasticsearchService {
     @Autowired
@@ -30,7 +35,7 @@ public class ElasticsearchService {
         discussRepository.deleteById(id);
     }
 
-    public SearchHits<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
+    public Map<String, Object> searchDiscussPost(String keyword, int current, int limit) {
         NativeSearchQuery query = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
@@ -42,7 +47,25 @@ public class ElasticsearchService {
                         new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 ).build();
-        return elasticTemplate.search(query, DiscussPost.class);
+        SearchHits<DiscussPost> search = elasticTemplate.search(query, DiscussPost.class);
+        //        把高亮显示的内容替换掉
+        ArrayList<DiscussPost> list = new ArrayList<>();
+        for (SearchHit<DiscussPost> hit : search) {
+            DiscussPost content = hit.getContent();
+            List<String> title = hit.getHighlightFields().get("title");
+            if (title != null) {
+                content.setTitle(title.get(0));
+            }
+            List<String> contents = hit.getHighlightFields().get("content");
+            if (contents != null) {
+                content.setContent(contents.get(0));
+            }
+            list.add(content);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", (int)search.getTotalHits());
+        map.put("hits", list);
+        return map;
     }
 
 
